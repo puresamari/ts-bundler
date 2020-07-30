@@ -16,3 +16,4 @@ dist/
 .gitignore
 examples/
 .npmrc
+test.ts
