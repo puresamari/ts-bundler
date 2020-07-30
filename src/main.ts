@@ -3,6 +3,8 @@ import path from 'path';
 
 import ts from 'typescript';
 import beautify from 'js-beautify';
+import { resolveModule } from './moduleResolution';
+import { buildFile } from './buildFile';
 
 const requireRegex = /require\("(.*?)"\);/g
 
@@ -27,7 +29,7 @@ export class TypescriptBundler {
     file: string;
     modules: string[];
   }> {
-    const tsCode = fs.readFileSync(file + (!path.extname(file) ? '.ts' : ''), 'utf-8');
+    const tsCode = fs.readFileSync(resolveModule(file, this.base), 'utf-8');
     const jsCode = await ts.transpileModule(tsCode, {
       compilerOptions: {
         baseUrl: this.base
@@ -40,31 +42,7 @@ export class TypescriptBundler {
     }
   }
 
-  private modulesToString(modules: Map<string, string>) {
-    return beautify.js(`
-      "use strict";
-      // common code for implementing require()/exports
-      var dependencies = {} // loaded modules
-      var modules = {} // code of your dependencies
-      // require function
-      var require = function (module) {
-        console.log('require', module)
-      if (!dependencies[module]) {
-        // module not loaded, let's load it
-        var exports = {}
-        modules[module](exports)
-        // now in exports we have the things made "public"
-        dependencies[module] = exports
-      }
-      return dependencies[module]
-      }
-      ${[ ...modules.keys() ].map(module => `
-      modules['${module}'] = function(exports) {
-      ${modules.get(module)}}
-      `).join('\n')}
-      require('${path.relative(this.base, this.file)}')
-    `, { indent_size: 2 });
-  }
+  private modulesToString(modules: Map<string, string>) { return buildFile(modules, this.base); }
 
   public async bundle() {
     const modules = new Map<string, string | null>([ [path.relative(this.base, this.file), null] ]);
