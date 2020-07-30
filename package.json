@@ -1,0 +1,39 @@
+{
+  "name": "@puresamari/ts-bundler",
+  "version": "0.0.1",
+  "description": "Simple typescript bundler",
+  "main": "lib/main.js",
+  "scripts": {
+    "start": "nodemon",
+    "create": "npm run build && npm run test",
+    "build": "rm -rf lib && tsc -p .",
+    "test": "npm i -g && spb -o dist --files examples/hello-world/index.twig examples/hello-world/styles.css examples/hello-world/main.ts && spb -o dist -c examples/hello-world/config.spb.json",
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
+    "prepublish": "npm run build && npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/puresamari/ts-bundler.git"
+  },
+  "keywords": [
+    "typescript",
+    "bundle",
+    "library"
+  ],
+  "author": "Simon Rothert <puresamari@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/puresamari/ts-bundler/issues"
+  },
+  "homepage": "https://github.com/puresamari/ts-bundler#readme",
+  "devDependencies": {
+    "@types/js-beautify": "^1.11.0",
+    "@types/node": "^14.0.27",
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "js-beautify": "^1.11.0",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.7"
+  }
+}
