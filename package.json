@@ -8,7 +8,7 @@
     "start": "nodemon",
     "create": "npm run build && npm run test",
     "build": "rm -rf lib && tsc",
-    "test": "npm i -g && spb -o dist --files examples/hello-world/index.twig examples/hello-world/styles.css examples/hello-world/main.ts && spb -o dist -c examples/hello-world/config.spb.json",
+    "test": "ts-node test.ts",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
     "prepublish": "npm run build && npm run test"
   },
