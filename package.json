@@ -3,10 +3,11 @@
   "version": "0.0.1",
   "description": "Simple typescript bundler",
   "main": "lib/main.js",
+  "types": "lib/main.d.ts",
   "scripts": {
     "start": "nodemon",
     "create": "npm run build && npm run test",
-    "build": "rm -rf lib && tsc -p .",
+    "build": "rm -rf lib && tsc",
     "test": "npm i -g && spb -o dist --files examples/hello-world/index.twig examples/hello-world/styles.css examples/hello-world/main.ts && spb -o dist -c examples/hello-world/config.spb.json",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
     "prepublish": "npm run build && npm run test"
