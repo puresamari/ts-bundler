@@ -11,3 +11,4 @@ export class Test {
     return js(`var tm = ${this.testMessage}`);
   }
 }
+

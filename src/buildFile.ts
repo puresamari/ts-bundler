@@ -24,7 +24,7 @@ function buildModule(moduleName: string, moduleContent: string | null | undefine
   return `modules['${moduleName}'] = function(exports) { ${moduleContent || '/* empty */'} }`;
 }
 
-export function buildFile(modules: Map<string, string>, base: string) {
+export function buildFile(modules: Map<string, { node_module: boolean; content: string; }>, base: string) {
   const file = [...modules.keys()][0];
   if (!file) {
     return "// Error while bundling: No entry file found";
@@ -32,7 +32,7 @@ export function buildFile(modules: Map<string, string>, base: string) {
   return js(
     [
       HEAD,
-      ...[...modules.keys()].map((moduleName) => buildModule(moduleName, modules.get(moduleName))),
+      ...[...modules.keys()].map((moduleName) => buildModule(moduleName, modules.get(moduleName)?.content)),
       `require('${file}')`,
     ].join("\n\n"),
     { indent_size: 2 }
