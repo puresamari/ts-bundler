@@ -66,7 +66,10 @@ export class TypescriptBundler {
 
     return {
       output: this.modulesToString(modules as Map<string, { node_module: boolean; content: string; }>),
-      modules: [ ...modules.values() ].filter(v => v?.node_module).map((v) => ({ ...v, file: path.resolve(this.base, v?.file + (path.extname(v!.file) ? '.ts' : '')) }))
+      modules: ([ ...modules.values() ])
+        .filter(v => !!v)
+        .filter(v => !v?.node_module)
+        .map((v) => ({ ...v, file: require.resolve(path.resolve(this.base, v!.file)) }))
     };
   }
 }
