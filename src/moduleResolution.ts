@@ -39,7 +39,5 @@ function resolveModulee(moduleName: string, base: string) {
 }
 
 export function resolveModule(moduleName: string, base: string) {
-  console.log('THIS GOES IN', moduleName, base);
-  console.log('THIS Comes out', resolveModulee(moduleName, base));
   return resolveModulee(moduleName, base);
 }

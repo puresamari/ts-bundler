@@ -8,7 +8,6 @@ var dependencies = {} // loaded modules
 var modules = {} // code of your dependencies
 // require function
 var require = function (module) {
-  console.log('require', module)
   if (!dependencies[module]) {
     // module not loaded, let's load it
     var exports = {}
