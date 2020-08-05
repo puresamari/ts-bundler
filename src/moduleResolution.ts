@@ -1,8 +1,16 @@
 import fs from 'fs';
 import path from 'path';
+import resolve from 'resolve';
 
-function resolveFileName(file: string) {
-  try { return require.resolve(file); }
+export function reqRes(file: string, basedir: string): string {
+  if (path.extname(file) !== '') { return file; }
+  const module = file.split('/')[file.split('/').length - 1];
+  const res = resolve.sync(module, { basedir });
+  return res;
+}
+
+function resolveFileName(file: string, base: string) {
+  try { return reqRes(file, base); }
   catch {
     if (fs.existsSync(file + '.ts')) { return file + '.ts'; }
     return file;
@@ -34,7 +42,7 @@ function resolveModulee(moduleName: string, base: string) {
 
   return {
     nodeModule: false,
-    file: resolveFileName(moduleName)
+    file: resolveFileName(moduleName, base)
   }
 }
 

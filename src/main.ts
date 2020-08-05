@@ -2,8 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import ts from 'typescript';
-import beautify from 'js-beautify';
-import { resolveModule } from './moduleResolution';
+import { reqRes, resolveModule } from './moduleResolution';
 import { buildFile } from './buildFile';
 
 const requireRegex = /require\("(.*?)"\);/g
@@ -69,7 +68,7 @@ export class TypescriptBundler {
       modules: ([ ...modules.values() ])
         .filter(v => !!v)
         .filter(v => !v?.node_module)
-        .map((v) => ({ ...v, file: require.resolve(path.resolve(this.base, v!.file)) }))
+        .map((v) => ({ ...v, file: reqRes(path.resolve(this.base, v!.file), this.base) }))
     };
   }
 }
