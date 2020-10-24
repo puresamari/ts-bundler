@@ -11,7 +11,7 @@ var require = function (module) {
   if (!dependencies[module]) {
     // module not loaded, let's load it
     var exports = {}
-    modules[module](exports)
+    modules[module](exports, { module })
     // now in exports we have the things made "public"
     dependencies[module] = exports
   }
@@ -20,7 +20,9 @@ var require = function (module) {
 `;
 
 function buildModule(moduleName: string, moduleContent: string | null | undefined) {
-  return `modules['${moduleName}'] = function(exports) { ${moduleContent || '/* empty */'} }`;
+  return `modules['${moduleName}'] = function(exports, module) {
+    ${moduleContent || '/* empty */'}
+  }`;
 }
 
 export function buildFile(modules: Map<string, { node_module: boolean; content: string; }>, base: string) {
