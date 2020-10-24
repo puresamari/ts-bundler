@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import resolve from 'resolve';
 
-export function reqRes(file: string, basedir: string): string {
+function reqRes(file: string, basedir: string): string {
   if (path.extname(file) !== '') { return file; }
   const module = file.split('/')[file.split('/').length - 1];
   const res = resolve.sync(module, { basedir });
