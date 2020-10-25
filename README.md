@@ -39,8 +39,9 @@ The observe method takes 2 oparameters:
 ## Example use cases
 (To run these please first create a bundler instance like above.)
 
+The examples compile file into `test.export.js`.
 
-### Bundle the module and compile it into `test.export.js`:
+### Bundle the module:
 ```ts
 import fs from 'fs';
 
@@ -66,5 +67,19 @@ bundler.observe(false, true).subscribe(v => {
   })
 });
 
+```
+
+### Bundle once using await:
+```ts
+import fs from 'fs';
+
+fs.writeFileSync(path.resolve(__dirname, 'test.export.js'), await bundle.bundle().output);
+```
+
+### Bundle once using promise:
+```ts
+import fs from 'fs';
+
+bundle.bundle().then(({ output }) => fs.writeFileSync(path.resolve(__dirname, 'test.export.js'), output);
 ```
 

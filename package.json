@@ -1,6 +1,6 @@
 {
   "name": "@puresamari/ts-bundler",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Simple typescript bundler",
   "main": "lib/main.js",
   "types": "lib/main.d.ts",
@@ -20,7 +20,9 @@
   "keywords": [
     "typescript",
     "bundle",
-    "library"
+    "library",
+    "modules",
+    "module-replacement"
   ],
   "author": "Simon Rothert <puresamari@gmail.com>",
   "license": "Apache-2.0",

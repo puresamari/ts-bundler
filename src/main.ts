@@ -129,4 +129,16 @@ export class TypescriptBundler {
     );
   }
 
+  public async bundle() {
+    return new Promise<{
+      output: string,
+      map: ModuleMapData
+    }>(resolve => {
+      const sub = this.observe(true, true).subscribe((v) => {
+        sub.unsubscribe();
+        resolve(v);
+      })
+    })
+  }
+
 }
