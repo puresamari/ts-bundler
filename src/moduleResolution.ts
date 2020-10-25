@@ -2,6 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import resolve from 'resolve';
 
+export interface IModulePath {
+  nodeModule: boolean;
+  file: string;
+};
+
 function reqRes(file: string, basedir: string): string {
   if (path.extname(file) !== '') { return file; }
   const module = file.split('/')[file.split('/').length - 1];
@@ -17,7 +22,7 @@ function resolveFileName(file: string, base: string) {
   }
 }
 
-function resolveModulee(moduleName: string, base: string) {
+function resolveModulee(moduleName: string, base: string): IModulePath | null {
   if (!path.extname(moduleName) || path.extname(moduleName) === '') {
     var findNodeModules = require('find-node-modules') as (any: string) => string[];
     const modules = findNodeModules(base);

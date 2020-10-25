@@ -2,11 +2,11 @@
   "watch": [
     "examples",
     "src",
-    "test.ts"
+    "static.test.ts"
   ],
   "ext": "ts",
   "ignore": [
     "*.spec.ts"
   ],
-  "exec": "npx ts-node test.ts"
+  "exec": "npx ts-node static.test.ts"
 }

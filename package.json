@@ -5,7 +5,8 @@
   "main": "lib/main.js",
   "types": "lib/main.d.ts",
   "scripts": {
-    "start": "nodemon",
+    "start": "nodemon --config mr.nodemon.json",
+    "start:static": "nodemon --config static.nodemon.json",
     "create": "npm run build && npm run test",
     "build": "rm -rf lib && tsc",
     "test": "ts-node test.ts",
@@ -37,6 +38,7 @@
     "ts-node": "^8.10.2"
   },
   "dependencies": {
+    "rxjs": "^6.6.3",
     "find-node-modules": "^2.1.0",
     "js-beautify": "^1.11.0",
     "require-resolve": "0.0.2",
