@@ -1,6 +1,6 @@
 {
   "name": "@puresamari/ts-bundler",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Simple typescript bundler",
   "main": "lib/main.js",
   "types": "lib/main.d.ts",
