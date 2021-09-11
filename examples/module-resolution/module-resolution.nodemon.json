@@ -1,0 +1,11 @@
+{
+  "watch": [
+    "examples/module-resolution/module-resolution.test.ts",
+    "src"
+  ],
+  "ext": "ts",
+  "ignore": [
+    "*.spec.ts"
+  ],
+  "exec": "npx ts-node examples/module-resolution/module-resolution.test.ts"
+}

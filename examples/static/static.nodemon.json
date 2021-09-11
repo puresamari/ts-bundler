@@ -1,0 +1,12 @@
+{
+  "watch": [
+    "examples/example-projects/static.test.ts",
+    "examples/example-projects/multi-import",
+    "src"
+  ],
+  "ext": "ts",
+  "ignore": [
+    "*.spec.ts"
+  ],
+  "exec": "npx ts-node examples/example-projects/static.test.ts"
+}

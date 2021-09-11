@@ -1,9 +1,6 @@
 .DS_Store
 cli/
 node_modules/
-index.html
-nodemon.json
-nodemon.watch.json
 builder/
 .git
 .git/
@@ -16,5 +13,3 @@ dist/
 .gitignore
 examples/
 .npmrc
-/*.test.ts
-test.ts

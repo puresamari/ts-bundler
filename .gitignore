@@ -4,4 +4,4 @@ dist/
 lib/
 .npmrc
 
-/test.*.*
+examples/**/dist

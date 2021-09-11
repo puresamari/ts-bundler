@@ -1,12 +1,12 @@
 {
   "name": "@puresamari/ts-bundler",
-  "version": "0.2.1",
+  "version": "0.2.4",
   "description": "Simple typescript bundler",
   "main": "lib/main.js",
   "types": "lib/main.d.ts",
   "scripts": {
-    "start": "nodemon --config mr.nodemon.json",
-    "start:static": "nodemon --config static.nodemon.json",
+    "start": "nodemon --config examples/module-resolution/module-resolution.nodemon.json",
+    "start:static": "nodemon --config examples/static/static.nodemon.json",
     "create": "npm run build && npm run test",
     "build": "rm -rf lib && tsc",
     "test": "ts-node test.ts",
