@@ -1,11 +1,12 @@
 {
   "watch": [
     "examples/module-resolution/module-resolution.test.ts",
+    "examples/module-resolution/module-resolution.nodemon.json",
     "src"
   ],
   "ext": "ts",
   "ignore": [
     "*.spec.ts"
   ],
-  "exec": "npx ts-node examples/module-resolution/module-resolution.test.ts"
+  "exec": "cd examples/module-resolution && ls && npx ts-node module-resolution.test.ts"
 }

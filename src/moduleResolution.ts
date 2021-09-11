@@ -25,16 +25,16 @@ function resolveFileName(file: string, base: string) {
 function resolveModulee(moduleName: string, base: string): IModulePath | null {
   if (!path.extname(moduleName) || path.extname(moduleName) === '') {
     var findNodeModules = require('find-node-modules') as (any: string) => string[];
+    const relModuleName = path.relative(base, moduleName);
     const modules = findNodeModules(base);
     const paths = modules.filter(v => path.extname(v) === '').map(v => {
       try {
-        const absolutePath = path.resolve(base, v, moduleName.replace(base + '/', ''));
+        const absolutePath = path.resolve(base, v, relModuleName);
         const relativePath = path.relative(__dirname, absolutePath);
         const resolvedAbsolute = path.resolve(__dirname, relativePath);
         if (resolvedAbsolute.indexOf('node_modules') >= 0) {
           const moduleConfig = JSON.parse(fs.readFileSync(path.resolve(resolvedAbsolute, 'package.json'), 'utf-8')) as { main: string }
           return { nodeModule: true, file: path.resolve(resolvedAbsolute, moduleConfig.main) };
-          // return { nodeModule: true, file: require.resolve('relativePath') };
         }
       } catch (e) {
         return null;
