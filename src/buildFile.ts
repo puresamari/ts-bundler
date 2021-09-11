@@ -29,7 +29,6 @@ function buildModule(key: string, module: { node_module: boolean; content: strin
 
 export function buildFile(modules: Map<string, { node_module: boolean; content: string; }>, base: string, entryFile?: string) {
   const file = entryFile || [...modules.keys()][0];
-  console.log(...[...modules.keys()].map((moduleName) => path.relative(base, moduleName)))
   if (!file) {
     return "// Error while bundling: No entry file found";
   }
