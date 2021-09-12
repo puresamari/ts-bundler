@@ -88,16 +88,13 @@ export class ModuleMap extends BehaviorSubject<{
     });
   }
 
-  public async refreshModule(module: string) {
-    if (!this.getValue().map.has(module)) {
-      return;
-    }
-    this.rebundle();
-    // const d = this.render(await this.compileFile(path.resolve(this.base, module)));
-    // this.getValue().map.get(module)!.content = d;
-    // // TODO: compiling could probably also be done directly in the file instead of recompiling as a whole.
-    // this.getValue().output = this.render();
-    // this.next(this.getValue());
+  public async refreshModule(_module: string) {
+    const map = this.getValue().map;
+    this.compileFile(_module, map);
+    this.next({
+      map,
+      output: this.render()
+    });
   }
 }
 
@@ -109,8 +106,8 @@ export class TypescriptBundler {
     this.modules = new ModuleMap(this.base, file);
   }
 
-  public refreshModule(module: string) {
-    this.modules.refreshModule(module);
+  public refreshModule(_module: string) {
+    this.modules.refreshModule(_module);
   }
 
   public observe(rebundle = true, once = false) {

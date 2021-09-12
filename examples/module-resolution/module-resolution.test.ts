@@ -21,14 +21,8 @@ bundler.observe().subscribe(v => {
 bundler.observe(false, true).subscribe(v => {
   v.map.forEach((v, _module) => {
     if (!v?.file || v.node_module) { return; }
-    let initial = true;
-
     fs.watchFile(v.absolutePath, () => {
-      if (initial) {
-        initial = false;
-        return;
-      }
-      console.log('want to refershisdf');
+      console.log('Module changed', _module);
       bundler.refreshModule(_module);
     })
   })

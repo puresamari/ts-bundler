@@ -6,3 +6,4 @@ t.log();
 t.testBeautify();
 
 initLibs();
+initLibs();
