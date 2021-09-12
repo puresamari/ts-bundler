@@ -25,8 +25,8 @@ interface {
   map: Map<string, {
     content: string;
     node_module: boolean;
-    file: IModulePath;
-    modules: string[];
+    file: string;
+    absolutePath: string;
   }>
 }
 ```
@@ -59,10 +59,10 @@ const result = bundler.observe().subscribe(({ output }) => {
 });
 
 bundler.observe(false, true).subscribe(v => {
-  v.map.forEach((v, file) => {
-    if (v.file.nodeModule) { return; } // Dont watch node modules.
-    fs.watchFile(v.file.file, () => {
-      bundler.refreshModule(file);
+  v.map.forEach((v, _module) => {
+    if (!v?.file || v.node_module) { return; }
+    fs.watchFile(v.absolutePath, () => {
+      bundler.refreshModule(_module);
     })
   })
 });
