@@ -34,16 +34,18 @@
     "@types/js-beautify": "^1.11.0",
     "@types/node": "^14.0.27",
     "@types/resolve": "^1.17.1",
+    "@types/sha.js": "^2.4.0",
     "nodemon": "^2.0.4",
     "resolve": "^1.17.0",
+    "sha.js": "^2.4.11",
     "three": "^0.125.0",
     "ts-node": "^8.10.2"
   },
   "dependencies": {
-    "rxjs": "^6.6.3",
     "find-node-modules": "^2.1.0",
     "js-beautify": "^1.11.0",
     "require-resolve": "0.0.2",
+    "rxjs": "^6.6.3",
     "tslib": "^2.0.0",
     "typescript": "^3.9.7"
   }

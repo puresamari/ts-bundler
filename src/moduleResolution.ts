@@ -7,50 +7,69 @@ export interface IModulePath {
   file: string;
 };
 
-function reqRes(file: string, basedir: string): string {
-  if (path.extname(file) !== '') { return file; }
-  const module = file.split('/')[file.split('/').length - 1];
-  const res = resolve.sync(module, { basedir });
-  return res;
+const extensions = ['', '.ts', '.js'];
+
+function resolveFileName(file: string, base: string): string | undefined {
+  for (var i = 0; i < extensions.length; i++) {
+    if (fs.existsSync(file + extensions[i])) { return file + extensions[i]; }
+  }
+  return undefined;
+  // try {
+  //   if (path.extname(file) !== '') { return file; }
+  //   const _module = file.split('/')[file.split('/').length - 1];
+  //   const res = resolve.sync(_module, { basedir: base });
+  //   return res;
+  // }
+  // catch {
+  //   console.log('Error')
+  // }
 }
 
-function resolveFileName(file: string, base: string) {
-  try { return reqRes(file, base); }
-  catch {
-    if (fs.existsSync(file + '.ts')) { return file + '.ts'; }
-    return file;
+function resolveNodeModule(moduleName: string, base: string): string | undefined {
+  const debug = moduleName.indexOf('sha.js') >= 0;
+  
+  var findNodeModules = require('find-node-modules') as (any: string) => string[];
+  const relModuleName = path.relative(base, moduleName);
+  const modules = findNodeModules(base);
+  const paths = modules.filter(v => path.extname(v) === '').map(v => {
+    try {
+      const absolutePath = path.resolve(base, v, relModuleName);
+      const relativePath = path.relative(__dirname, absolutePath);
+      const resolvedAbsolute = path.resolve(__dirname, relativePath);
+      if (resolvedAbsolute.indexOf('node_modules') >= 0) {
+        // Try to find the main file
+        const moduleMain = (JSON.parse(fs.readFileSync(path.resolve(resolvedAbsolute, 'package.json'), 'utf-8')).main || 'index.js') as string
+        return path.resolve(resolvedAbsolute, moduleMain);
+      }
+    } catch (e) {
+      return null;
+    }
+  }).filter(v => !!v);
+  debug && console.log('modules', modules)
+  if (paths && paths.length > 0) {
+    return paths[0] || undefined;
   }
 }
 
-function resolveModulee(moduleName: string, base: string): IModulePath | null {
-  if (!path.extname(moduleName) || path.extname(moduleName) === '') {
-    var findNodeModules = require('find-node-modules') as (any: string) => string[];
-    const relModuleName = path.relative(base, moduleName);
-    const modules = findNodeModules(base);
-    const paths = modules.filter(v => path.extname(v) === '').map(v => {
-      try {
-        const absolutePath = path.resolve(base, v, relModuleName);
-        const relativePath = path.relative(__dirname, absolutePath);
-        const resolvedAbsolute = path.resolve(__dirname, relativePath);
-        if (resolvedAbsolute.indexOf('node_modules') >= 0) {
-          const moduleConfig = JSON.parse(fs.readFileSync(path.resolve(resolvedAbsolute, 'package.json'), 'utf-8')) as { main: string }
-          return { nodeModule: true, file: path.resolve(resolvedAbsolute, moduleConfig.main) };
-        }
-      } catch (e) {
-        return null;
-      }
-    }).filter(v => !!v);
-    if (paths && paths.length > 0) {
-      return paths![0] as { nodeModule: boolean, file: string };
+export function resolveModule(moduleName: string, base: string): IModulePath {
+  
+  const fileName = resolveFileName(moduleName, base);
+  
+  if (fileName) {
+    return {
+      nodeModule: false,
+      file: fileName
     }
   }
 
-  return {
-    nodeModule: false,
-    file: resolveFileName(moduleName, base)
-  }
-}
+  const nodeModule = resolveNodeModule(moduleName, base);
 
-export function resolveModule(moduleName: string, base: string) {
-  return resolveModulee(moduleName, base);
+  if (nodeModule) {
+    return {
+      nodeModule: false,
+      file: nodeModule
+    }
+  }
+
+  throw new Error(`Module ${path.relative(base, moduleName)} could not be found in ${base} or node_modules`);
 }

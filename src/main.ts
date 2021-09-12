@@ -47,8 +47,9 @@ export class ModuleMap extends BehaviorSubject<{
     file: string;
     modules: string[];
   }> {
+    const _module = resolveModule(file, this.base);
     const tsCode = fs.readFileSync(
-      resolveModule(file, this.base)!.file,
+      _module.file,
       "utf-8"
     );
     const jsCode = await ts.transpileModule(tsCode, {
@@ -59,7 +60,7 @@ export class ModuleMap extends BehaviorSubject<{
     return {
       content: jsCode.outputText,
       file,
-      node_module: resolveModule(file, this.base)!.nodeModule,
+      node_module: _module.nodeModule,
       modules: this.findModules(jsCode.outputText),
     };
   }
