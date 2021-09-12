@@ -10,7 +10,7 @@ if (!fs.existsSync(dist)) {
   fs.mkdirSync(dist);
 }
 
-bundler.observe(true, false).subscribe(v => {
+bundler.bundle().then(v => {
   fs.writeFileSync(path.resolve(dist, 'test.export.js'), v.output);
   fs.writeFileSync(path.resolve(dist, 'index.html'), `<body><script type="text/javascript" src="./test.export.js"></script></body>`);
 });

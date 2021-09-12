@@ -1,12 +1,12 @@
 {
   "watch": [
-    "examples/example-projects/static.test.ts",
-    "examples/example-projects/multi-import",
+    "examples/static/static.test.ts",
+    "examples/static/static.nodemon.json",
     "src"
   ],
   "ext": "ts",
   "ignore": [
     "*.spec.ts"
   ],
-  "exec": "npx ts-node examples/example-projects/static.test.ts"
+  "exec": "cd examples/static && ls && npx ts-node static.test.ts"
 }
