@@ -19,9 +19,13 @@ bundler.observe().subscribe(v => {
 
 bundler.observe(false, true).subscribe(v => {
   v.map.forEach((v, file) => {
-    if (v.file.nodeModule) { return; }
-    console.log('watching', v.file.file)
-    fs.watchFile(v.file.file, () => {
+    if (!v?.file || v.node_module) { return; }
+    let initial = true;
+    fs.watchFile(v.file, () => {
+      if (initial) {
+        initial = false;
+        return;
+      }
       bundler.refreshModule(file);
     })
   })

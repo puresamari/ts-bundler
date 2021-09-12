@@ -9,34 +9,33 @@ var modules = {} // code of your dependencies
 // require function
 var require = function (_module) {
   if (!dependencies[_module]) {
-    // module not loaded, let's load it
-    var exports = {}
-    modules[_module](exports, { module: _module })
-    // now in exports we have the things made "public"
-    dependencies[_module] = exports
+    var module = { exports: {} };
+    if (typeof modules[_module] !== 'function') {
+      throw new Error("Module '" + _module + "' not found!")
+    }
+    modules[_module](module, module.exports)
+    dependencies[_module] = module;
   }
-  return dependencies[_module]
+  return dependencies[_module] ? dependencies[_module].exports : undefined
 }
 `;
 
-function buildModule(key: string, module: { node_module: boolean; content: string; }, base: string) {
-  const name = module.node_module ? path.relative(base, key) : './' + path.relative(base, key);
-  return `modules['${name}'] = function(exports, module) {
-    // ${module.node_module}
-    ${module.content || '/* empty */'}
+function buildModule(key: string, module: { node_module: boolean; content: string; } | undefined, base: string) {
+  // const name = module.node_module ? path.relative(base, key) : './' + path.relative(base, key);
+  return `modules['${key}'] = function(module, exports) {
+    ${module?.content || '/* empty */'}
   }`;
 }
 
-export function buildFile(modules: Map<string, { node_module: boolean; content: string; }>, base: string, entryFile?: string) {
-  const file = entryFile || [...modules.keys()][0];
-  if (!file) {
+export function buildFile(modules: Map<string, { node_module: boolean; content: string; } | undefined>, base: string, entryFile: string) {
+  if (!entryFile) {
     return "// Error while bundling: No entry file found";
   }
   return js(
     [
       HEAD,
-      ...[...modules.keys()].map((name) => buildModule(name, modules.get(name)!, base)),
-      `require("./${path.relative(base, file)}")`,
+      ...[...modules.keys()].map((name) => buildModule(name, modules.get(name), base)),
+      `require("${entryFile}")`,
     ].join("\n\n"),
     { indent_size: 2 }
   );

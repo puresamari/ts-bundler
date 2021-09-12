@@ -1,22 +1,19 @@
-import fs from "fs";
-import path from "path";
-import { BehaviorSubject, pipe } from "rxjs";
-import { distinctUntilChanged, filter, first, map, tap } from "rxjs/operators";
-import ts from "typescript";
+import path from 'path';
+import { BehaviorSubject } from 'rxjs';
+import { filter, first, map, tap } from 'rxjs/operators';
 
-import { buildFile } from "./buildFile";
-import { IModulePath, resolveModule } from "./moduleResolution";
-
-const requireRegex = /require\("(.*?)"\);/g;
+import { buildFile } from './buildFile';
+import { compileRel } from './utils/compile';
+import { findModules } from './utils/findModules';
+import { IModulePath, resolveModule } from './utils/moduleResolution';
 
 export class ModuleMapData extends Map<
   string,
   {
     content: string;
     node_module: boolean;
-    file: IModulePath;
-    modules: string[];
-  }
+    file: string;
+  } | undefined
 > {}
 
 export class ModuleMap extends BehaviorSubject<{
@@ -27,103 +24,81 @@ export class ModuleMap extends BehaviorSubject<{
     super({ output: "", map: new ModuleMapData() });
   }
 
-  render(map?: ModuleMapData) {
-    return buildFile(map || this.getValue().map, this.base);
-  }
-
-  private findModules(jsCode: string): string[] {
-    const matches = jsCode.match(requireRegex) as string[];
-    if (!matches) {
-      return [];
-    }
-    return matches.map((v) => v.replace('require("', "").replace('");', ""));
+  render(map: ModuleMapData = this.getValue().map) {
+    return buildFile(map, this.base, path.relative(this.base, this.file));
   }
 
   private async compileFile(
-    file: string
-  ): Promise<{
-    content: string;
-    node_module: boolean;
-    file: string;
-    modules: string[];
-  }> {
-    const _module = resolveModule(file, this.base);
-    const tsCode = fs.readFileSync(
-      _module.file,
-      "utf-8"
-    );
-    const jsCode = await ts.transpileModule(tsCode, {
-      compilerOptions: {
-        baseUrl: this.base,
-      },
+    moduleKey: string,
+    modules: ModuleMapData = new ModuleMapData([])
+  ): Promise<ModuleMapData> {
+    console.log('building', moduleKey)
+
+    const _module = resolveModule(moduleKey, this.base);
+    const js = { ...(await compileRel(_module.file, this.base)) };
+
+    const submodules = findModules(js.outputText);
+
+    // Go through the submodules
+    for await (const subModule of submodules) {
+      let file = subModule.moduleKey;
+      let mod: IModulePath | undefined;
+
+      // Try to identify the submodule file and path
+      try {
+        // First resolve the file directly like the require('...')
+        mod = resolveModule(file, this.base);
+      } catch {
+        // If it fails, resolve it in relation to the file where it was imprted from
+        try {
+          file = path.join(path.dirname(moduleKey), subModule.moduleKey);
+          mod = resolveModule(file, this.base);
+        } catch (e) {
+          if (!(e instanceof Error)) {
+            throw e;
+          }
+        }
+      }
+
+      if (!mod) {
+        modules.set(file, undefined);
+      } else {
+        // modify all the require(...) statements to use the actual file name.
+        js.outputText = js.outputText.replace(subModule.match, subModule.match.replace(subModule.moduleKey, mod.file));
+        await this.compileFile(mod.file, modules);
+      }
+    }
+    
+    modules.set(moduleKey, {
+      content: js.outputText,
+      file: moduleKey,
+      node_module: moduleKey.indexOf('node_modules') >= 0,
     });
-    return {
-      content: jsCode.outputText,
-      file,
-      node_module: _module.nodeModule,
-      modules: this.findModules(jsCode.outputText),
-    };
+
+    return modules;
   }
 
   public async rebundle() {
-    const modules = new Map<
-      string,
-      {
-        node_module: boolean;
-        content: string;
-        file: string;
-      } | null
-    >([[path.relative(this.base, this.file), null]]);
-
-    while ([...modules.keys()].filter((v) => !modules.get(v)).length > 0) {
-      const moduleKey = [...modules.keys()].filter((v) => !modules.get(v))[0];
-      const comp = await this.compileFile(path.resolve(this.base, moduleKey));
-      modules.set(moduleKey, comp);
-      comp.modules.forEach((m) => {
-        if (!modules.get(m)) {
-          modules.set(m, null);
-        }
-      });
-    }
-
-    const iter = [...modules.values()]
-      .filter((v) => !!v)
-      .map(
-        (v) =>
-          [
-            v!.file,
-            {
-              ...v,
-              file: resolveModule(path.resolve(this.base, v!.file), this.base),
-            },
-          ] as [
-            string,
-            {
-              content: string;
-              node_module: boolean;
-              file: IModulePath;
-              modules: string[];
-            }
-          ]
-      );
-
-    const map = new ModuleMapData(iter);
+    console.log('Bundle start')
+    const map = await this.compileFile(path.relative(this.base, this.file));
 
     this.next({
       output: this.render(map),
       map,
     });
+    console.log('Bundle finished')
   }
 
   public async refreshModule(module: string) {
     if (!this.getValue().map.has(module)) {
       return;
     }
-    const d = await this.compileFile(path.resolve(this.base, module));
-    this.getValue().map.get(module)!.content = d.content;
-    // TODO: compiling could probably also be done directly in the file instead of recompiling as a whole.
-    this.getValue().output = this.render();
-    this.next(this.getValue());
+    this.rebundle();
+    // const d = this.render(await this.compileFile(path.resolve(this.base, module)));
+    // this.getValue().map.get(module)!.content = d;
+    // // TODO: compiling could probably also be done directly in the file instead of recompiling as a whole.
+    // this.getValue().output = this.render();
+    // this.next(this.getValue());
   }
 }
 

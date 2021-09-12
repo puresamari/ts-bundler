@@ -5,13 +5,15 @@ import resolve from 'resolve';
 export interface IModulePath {
   nodeModule: boolean;
   file: string;
+  absolutePath: string;
 };
 
 const extensions = ['', '.ts', '.js'];
 
 function resolveFileName(file: string, base: string): string | undefined {
+  const absFile = path.resolve(base, file);
   for (var i = 0; i < extensions.length; i++) {
-    if (fs.existsSync(file + extensions[i])) { return file + extensions[i]; }
+    if (fs.existsSync(absFile + extensions[i])) { return absFile + extensions[i]; }
   }
   return undefined;
   // try {
@@ -25,11 +27,9 @@ function resolveFileName(file: string, base: string): string | undefined {
   // }
 }
 
-function resolveNodeModule(moduleName: string, base: string): string | undefined {
-  const debug = moduleName.indexOf('sha.js') >= 0;
+function resolveNodeModule(relModuleName: string, base: string): string | undefined {
   
   var findNodeModules = require('find-node-modules') as (any: string) => string[];
-  const relModuleName = path.relative(base, moduleName);
   const modules = findNodeModules(base);
   const paths = modules.filter(v => path.extname(v) === '').map(v => {
     try {
@@ -45,7 +45,6 @@ function resolveNodeModule(moduleName: string, base: string): string | undefined
       return null;
     }
   }).filter(v => !!v);
-  debug && console.log('modules', modules)
   if (paths && paths.length > 0) {
     return paths[0] || undefined;
   }
@@ -58,7 +57,8 @@ export function resolveModule(moduleName: string, base: string): IModulePath {
   if (fileName) {
     return {
       nodeModule: false,
-      file: fileName
+      file: path.relative(base, fileName),
+      absolutePath: fileName,
     }
   }
 
@@ -66,10 +66,11 @@ export function resolveModule(moduleName: string, base: string): IModulePath {
 
   if (nodeModule) {
     return {
-      nodeModule: false,
-      file: nodeModule
+      nodeModule: true,
+      file: path.relative(base, nodeModule),
+      absolutePath: nodeModule,
     }
   }
 
-  throw new Error(`Module ${path.relative(base, moduleName)} could not be found in ${base} or node_modules`);
+  throw new Error(`Module ${moduleName} could not be found in ${base} or node_modules`);
 }
