@@ -15,18 +15,21 @@ bundler.observe().subscribe(v => {
   console.log('rebuilding');
   fs.writeFileSync(path.resolve(dist, 'test.export.js'), v.output);
   fs.writeFileSync(path.resolve(dist, 'index.html'), `<body><script type="text/javascript" src="./test.export.js"></script></body>`);
+  console.log('built!');
 });
 
 bundler.observe(false, true).subscribe(v => {
-  v.map.forEach((v, file) => {
+  v.map.forEach((v, _module) => {
     if (!v?.file || v.node_module) { return; }
     let initial = true;
-    fs.watchFile(v.file, () => {
+
+    fs.watchFile(v.absolutePath, () => {
       if (initial) {
         initial = false;
         return;
       }
-      bundler.refreshModule(file);
+      console.log('want to refershisdf');
+      bundler.refreshModule(_module);
     })
   })
 });

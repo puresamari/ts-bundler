@@ -13,6 +13,7 @@ export class ModuleMapData extends Map<
     content: string;
     node_module: boolean;
     file: string;
+    absolutePath: string;
   } | undefined
 > {}
 
@@ -71,6 +72,7 @@ export class ModuleMap extends BehaviorSubject<{
     modules.set(moduleKey, {
       content: js.outputText,
       file: moduleKey,
+      absolutePath: path.resolve(this.base, moduleKey),
       node_module: moduleKey.indexOf('node_modules') >= 0,
     });
 
