@@ -153,8 +153,7 @@ export class TypescriptBundler {
       output: string;
       map: ModuleMapData;
     }>((resolve) => {
-      const sub = this.observe(true, true).subscribe((v) => {
-        sub.unsubscribe();
+      this.observe(true, true).pipe(first()).subscribe((v) => {
         resolve(v);
       });
     });
