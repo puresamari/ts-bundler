@@ -8,12 +8,20 @@ export interface IModulePath {
   absolutePath: string;
 };
 
-const extensions = ['', '.ts', '.js'];
+const extensions = ['.ts', '.js', ''];
+const moduleFiles = ['common.js', 'index.js', 'index.ts'];
 
 function resolveFileName(file: string, base: string): string | undefined {
   const absFile = path.resolve(base, file);
   for (var i = 0; i < extensions.length; i++) {
-    if (fs.existsSync(absFile + extensions[i])) { return absFile + extensions[i]; }
+    if (fs.existsSync(absFile + extensions[i])) {
+      let stats: fs.Stats = fs.statSync(absFile + extensions[i]);
+      if (stats.isFile()) { return absFile + extensions[i]; }
+      if (stats.isDirectory()) {
+        const indexFile = moduleFiles.map(v => path.resolve(absFile, v)).find(fs.existsSync);
+        if (indexFile) { return indexFile; }
+      }
+    }
   }
   return undefined;
   // try {

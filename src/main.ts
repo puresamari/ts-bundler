@@ -32,8 +32,7 @@ export class ModuleMap extends BehaviorSubject<{
     moduleKey: string,
     modules: ModuleMapData = new ModuleMapData([])
   ): Promise<ModuleMapData> {
-    console.log('building', moduleKey)
-
+    
     const _module = resolveModule(moduleKey, this.base);
     const js = { ...(await compileRel(_module.file, this.base)) };
 
@@ -79,14 +78,12 @@ export class ModuleMap extends BehaviorSubject<{
   }
 
   public async rebundle() {
-    console.log('Bundle start')
     const map = await this.compileFile(path.relative(this.base, this.file));
 
     this.next({
       output: this.render(map),
       map,
     });
-    console.log('Bundle finished')
   }
 
   public async refreshModule(module: string) {

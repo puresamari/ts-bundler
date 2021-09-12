@@ -10,6 +10,7 @@ var modules = {} // code of your dependencies
 var require = function (_module) {
   if (!dependencies[_module]) {
     var module = { exports: {} };
+    module.exports.default = module.exports;
     if (typeof modules[_module] !== 'function') {
       throw new Error("Module '" + _module + "' not found!")
     }

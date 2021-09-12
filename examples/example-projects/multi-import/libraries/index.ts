@@ -5,5 +5,7 @@ import shaTest from './sha-test';
 
 // t.log();
 
-init();
-shaTest();
+export function initLibs() {
+  init();
+  shaTest();
+}

@@ -6,5 +6,5 @@
 import hash from "hash.js";
 
 export default function init() {
-  hash.sha256().update('abc').digest('hex')
+  console.log(hash.sha256().update('abc').digest('hex'));
 }
