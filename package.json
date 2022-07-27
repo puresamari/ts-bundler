@@ -39,7 +39,7 @@
     "nodemon": "^2.0.4",
     "resolve": "^1.17.0",
     "sha.js": "^2.4.11",
-    "three": "^0.125.0",
+    "three": "^0.137.0",
     "ts-node": "^8.10.2"
   },
   "dependencies": {
